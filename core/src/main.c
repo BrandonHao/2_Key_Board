@@ -33,49 +33,71 @@
 #include <string.h>
 #include "sam.h"
 #include "tusb.h"
-#include "bsp/board.h"
 #include "timer.h"
 
+#include "hal_gpio.h"
+#include "hal_init.h"
+#include "hri_nvmctrl_d21.h"
+
+#include "hpl_gclk_base.h"
+#include "hpl_pm_config.h"
+#include "hpl_pm_base.h"
+
 #define KEY_PIN_MASK ((1 << 10) | (1 << 11))
+#define UNUSED(x) ((void)x)
+
+/* Referenced GCLKs, should be initialized firstly */
+#define _GCLK_INIT_1ST (0 << 0 | 1 << 1)
+
+/* Not referenced GCLKs, initialized last */
+#define _GCLK_INIT_LAST (~_GCLK_INIT_1ST)
 
 //-----------------------------------------------------------------------------
 
-void hid_task(void);
-
+volatile uint32_t system_ticks = 0;
 uint8_t lastPinState = 0;
-
-//-----------------------------------------------------------------------------
-int main(void) {
-    board_init();
-    timerInit();
-    tusb_init();
-    timerStart();
-
-    while(1) {
-        tud_task(); // device task
-        hid_task();
-
-        while(!pollingFlag);
-        pollingFlag = 0;
-    }
-
-    return 0;
+void USB_Handler(void) {
+    tud_int_handler(0);
+}
+void SysTick_Handler(void) {
+    system_ticks++;
 }
 
 
-// Invoked when device is mounted
-void tud_mount_cb(void);
-
-// Invoked when device is unmounted
-void tud_umount_cb(void);
-
-// Invoked when usb bus is suspended
-// remote_wakeup_en : if host allow us  to perform remote wakeup
-// Within 7ms, device must draw an average of current less than 2.5 mA from bus
-void tud_suspend_cb(bool remote_wakeup_en);
-
-// Invoked when usb bus is resumed
-void tud_resume_cb(void);
+void board_init(void) {
+    // Clock init ( follow hpl_init.c )
+    hri_nvmctrl_set_CTRLB_RWS_bf(NVMCTRL, 2);
+    _pm_init();
+    _sysctrl_init_sources();
+#if _GCLK_INIT_1ST
+    _gclk_init_generators_by_fref(_GCLK_INIT_1ST);
+#endif
+    _sysctrl_init_referenced_generators();
+    _gclk_init_generators_by_fref(_GCLK_INIT_LAST);
+#if CFG_TUSB_OS  == OPT_OS_NONE
+    SysTick_Config(CONF_CPU_FREQUENCY / 1000);
+#endif
+    /* USB Clock init
+     * The USB module requires a GCLK_USB of 48 MHz ~ 0.25% clock
+     * for low speed and full speed operation. */
+    _pm_enable_bus_clock(PM_BUS_APBB, USB);
+    _pm_enable_bus_clock(PM_BUS_AHB, USB);
+    _gclk_enable_channel(USB_GCLK_ID, GCLK_CLKCTRL_GEN_GCLK0_Val);
+    // USB Pin Init
+    gpio_set_pin_direction(PIN_PA24, GPIO_DIRECTION_OUT);
+    gpio_set_pin_level(PIN_PA24, false);
+    gpio_set_pin_pull_mode(PIN_PA24, GPIO_PULL_OFF);
+    gpio_set_pin_direction(PIN_PA25, GPIO_DIRECTION_OUT);
+    gpio_set_pin_level(PIN_PA25, false);
+    gpio_set_pin_pull_mode(PIN_PA25, GPIO_PULL_OFF);
+    gpio_set_pin_function(PIN_PA24, PINMUX_PA24G_USB_DM);
+    gpio_set_pin_function(PIN_PA25, PINMUX_PA25G_USB_DP);
+    PORT->Group[0].CTRL.reg |= PORT_CTRL_SAMPLING(10) | PORT_CTRL_SAMPLING(11);
+    gpio_set_pin_direction(PIN_PA10, GPIO_DIRECTION_IN);
+    gpio_set_pin_pull_mode(PIN_PA10, GPIO_PULL_OFF);
+    gpio_set_pin_direction(PIN_PA11, GPIO_DIRECTION_IN);
+    gpio_set_pin_pull_mode(PIN_PA11, GPIO_PULL_OFF);
+}
 
 void hid_task(void) {
     uint8_t pinState = (PORT->Group[0].IN.reg & KEY_PIN_MASK) != KEY_PIN_MASK;
@@ -98,18 +120,35 @@ void hid_task(void) {
     tud_hid_mouse_report(0, buttonVal, 0, 0, 0, 0);
 }
 
+//-----------------------------------------------------------------------------
+int main(void) {
+    board_init();
+    timerInit();
+    timerStart();
+    tusb_init();
+
+    while(1) {
+        tud_task(); // device task
+        hid_task();
+
+        while(!pollingFlag);
+
+        pollingFlag = 0;
+    }
+
+    return 0;
+}
 
 // Invoked when received GET_REPORT control request
 // Application must fill buffer report's content and return its length.
 // Return zero will cause the stack to STALL request
 uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id,
                                hid_report_type_t report_type, uint8_t *buffer, uint16_t reqlen) {
-    // TODO not Implemented
-    (void) itf;
-    (void) report_id;
-    (void) report_type;
-    (void) buffer;
-    (void) reqlen;
+    UNUSED(itf);
+    UNUSED(report_id);
+    UNUSED(report_type);
+    UNUSED(buffer);
+    UNUSED(reqlen);
     return 0;
 }
 
@@ -117,10 +156,9 @@ uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id,
 // received data on OUT endpoint ( Report ID = 0, Type = 0 )
 void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id,
                            hid_report_type_t report_type, uint8_t const *buffer, uint16_t bufsize) {
-    // TODO set LED based on CAPLOCK, NUMLOCK etc...
-    (void) itf;
-    (void) report_id;
-    (void) report_type;
-    (void) buffer;
-    (void) bufsize;
+    UNUSED(itf);
+    UNUSED(report_id);
+    UNUSED(report_type);
+    UNUSED(buffer);
+    UNUSED(bufsize);
 }
