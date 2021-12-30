@@ -14,9 +14,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the Licence at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -98,7 +98,7 @@
 #define TCC1_OTMX                   0        // Output Matrix feature implemented
 #define TCC1_OW_NUM                 4        // Number of Output Waveforms
 #define TCC1_PG                     1        // Pattern Generation feature implemented
-#define TCC1_SIZE                   24      
+#define TCC1_SIZE                   24
 #define TCC1_SWAP                   0        // DTI outputs swap feature implemented
 #define TCC1_TYPE                   0        // TCC type 0 : NA, 1 : Master, 2 : Slave
 

@@ -14,9 +14,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the Licence at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -64,10 +64,10 @@
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 /* ========== Instance parameters for PM peripheral ========== */
-#define PM_CTRL_MCSEL_DFLL48M       3       
-#define PM_CTRL_MCSEL_GCLK          0       
-#define PM_CTRL_MCSEL_OSC8M         1       
-#define PM_CTRL_MCSEL_XOSC          2       
-#define PM_PM_CLK_APB_NUM           2       
+#define PM_CTRL_MCSEL_DFLL48M       3
+#define PM_CTRL_MCSEL_GCLK          0
+#define PM_CTRL_MCSEL_OSC8M         1
+#define PM_CTRL_MCSEL_XOSC          2
+#define PM_PM_CLK_APB_NUM           2
 
 #endif /* _SAMD21_PM_INSTANCE_ */

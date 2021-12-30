@@ -1,4 +1,5 @@
 bin/
+build/
 CMakefiles/
 compile_commands.json
 .vscode/

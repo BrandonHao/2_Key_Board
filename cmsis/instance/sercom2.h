@@ -14,9 +14,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the Licence at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -124,6 +124,6 @@
 #define SERCOM2_DMAC_ID_TX          6        // Index of DMA TX trigger
 #define SERCOM2_GCLK_ID_CORE        22       // Index of Generic Clock for Core
 #define SERCOM2_GCLK_ID_SLOW        19       // Index of Generic Clock for SMbus timeout
-#define SERCOM2_INT_MSB             6       
+#define SERCOM2_INT_MSB             6
 
 #endif /* _SAMD21_SERCOM2_INSTANCE_ */
