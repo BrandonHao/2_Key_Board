@@ -1,8 +1,8 @@
-bin/
-build/
-CMakefiles/
-compile_commands.json
-.vscode/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
+**/bin/
+**/build/
+**/CMakefiles/
+**/compile_commands.json
+**/.vscode/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/Makefile
